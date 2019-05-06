@@ -2,3 +2,9 @@ name = "CrystalliteAngles"
 uuid = "7f12a0f0-702c-11e9-2c11-219cb559ad25"
 authors = ["bcmichael <bcmichael101@yahoo.com>"]
 version = "0.1.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
