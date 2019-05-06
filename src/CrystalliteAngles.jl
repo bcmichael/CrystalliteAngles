@@ -1,5 +1,7 @@
 module CrystalliteAngles
 
-greet() = print("Hello World!")
+export EulerAngles
+
+include("types.jl")
 
 end # module
