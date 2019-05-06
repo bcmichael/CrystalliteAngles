@@ -1,4 +1,4 @@
-import Base.convert
+import Base: convert, length
 
 struct EulerAngles{T<:AbstractFloat}
     α::T
@@ -14,3 +14,15 @@ EulerAngles(α ,β, γ) = EulerAngles{Float64}(α, β, γ)
 
 convert(::Type{EulerAngles{T}}, angles::EulerAngles) where {T<:AbstractFloat} =
     EulerAngles(T(angles.α), T(angles.β), T(angles.γ))
+
+struct Crystallites{T<:AbstractFloat}
+    angles::Vector{EulerAngles{T}}
+    weights::Vector{T}
+
+    function Crystallites(angles::Vector{EulerAngles{T}}, weights::Vector{T}) where {T<:AbstractFloat}
+        length(angles) == length(weights) || throw(ArgumentError("Number of angles and weights must match"))
+        new{T}(angles, weights)
+    end
+end
+
+length(x::Crystallites) = length(x.angles)
