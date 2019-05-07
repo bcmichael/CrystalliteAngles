@@ -43,3 +43,53 @@ end
     @test length(a) == 100
     @test CrystalliteAngles.generate_repulsion(100, 100, Float32) isa Crystallites{Float32}
 end
+
+@testset "Caching" begin
+    for f in ("rep2","rep3")
+        path = joinpath(CrystalliteAngles.cache_dir,"$f.cry")
+        if isfile(path)
+            mv(path, joinpath(CrystalliteAngles.cache_dir,"$(f)_temp.cry"), force=true)
+        end
+    end
+    out = stdout
+    (a,b) = redirect_stdout()
+    @test get_crystallites(2) isa Crystallites
+    redirect_stdout(out)
+    close(b)
+    @test readline(a) == "Generating crystallites"
+    @test readline(a) == ""
+
+    (a,b) = redirect_stdout()
+    @test get_crystallites(2) isa Crystallites
+    redirect_stdout(out)
+    close(b)
+    @test readline(a) == ""
+
+    mv(joinpath(CrystalliteAngles.cache_dir,"rep2.cry"), joinpath(CrystalliteAngles.cache_dir,"rep3.cry"))
+    sleep(0.5)
+    (a,b) = redirect_stdout()
+    @test get_crystallites(3) isa Crystallites
+    redirect_stdout(out)
+    close(b)
+    @test readline(a) == "Incorrect number of crystallites in cache file rep3.cry"
+    @test readline(a) == "Generating crystallites"
+    @test readline(a) == ""
+
+    @test_throws ArgumentError get_crystallites(1)
+    (a,b) = redirect_stdout()
+    @test get_crystallites(2, Float32) isa Crystallites{Float32}
+    redirect_stdout(out)
+    close(b)
+    @test get_crystallites(3, Float32) isa Crystallites{Float32}
+
+    sleep(0.5)
+    for f in ("rep2","rep3")
+        path1 = joinpath(CrystalliteAngles.cache_dir,"$f.cry")
+        path2 = joinpath(CrystalliteAngles.cache_dir,"$(f)_temp.cry")
+        if isfile(path2)
+            mv(path2, path1, force=true)
+        elseif isfile(path1)
+            rm(path1)
+        end
+    end
+end

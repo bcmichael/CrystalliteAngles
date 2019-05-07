@@ -39,3 +39,45 @@ function write_crystallites(crystallite_file, crystallites::Crystallites)
         end
     end
 end
+
+const cache_dir = joinpath(@__DIR__, "..", "cache")
+
+"""
+    get_from_cache(crystallite_file, T=Float64)
+
+Read crystallites from a file in the cache. Return a `Crystallites` object or
+nothing if the file is not in the cache or is invalid.
+"""
+function get_from_cache(crystallite_file, ::Type{T}=Float64) where {T<:AbstractFloat}
+    file = joinpath(cache_dir, crystallite_file)
+    if isfile(file)
+        try
+            return read_crystallites(file, T)
+        catch
+            println("Invalid cache file $crystallite_file")
+            return nothing
+        end
+    else
+        return nothing
+    end
+end
+
+"""
+    save_to_cache(crystallite_file, crystallites)
+
+Save a set of crystallites to a file in the cache to avoid having to calculate
+them again.
+"""
+function save_to_cache(crystallite_file, crystallites::Crystallites)
+    file = joinpath(cache_dir, crystallite_file)
+    isdir(cache_dir) || mkdir(cache_dir)
+    write_crystallites(file, crystallites)
+end
+
+"""
+    clear_cache()
+
+Delete all crystallite files from the cache to ensure new crystallites are
+generated in the future.
+"""
+clear_cache() = rm(cache_dir, force=true, recursive=true)
