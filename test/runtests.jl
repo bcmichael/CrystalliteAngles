@@ -26,3 +26,12 @@ end
     @test all(isassigned(a.angles, n) for n = 1:100)
     @test all(isassigned(a.weights, n) for n = 1:100)
 end
+
+@testset "REPULSION" begin
+    @test all(sum(CrystalliteAngles.random_point().^2) ≈ 1 for n = 1:10)
+    a = CrystalliteAngles.generate_repulsion(100)
+    @test a isa Crystallites
+    @test maximum(a.weights.-0.01)/0.01 < 0.05
+    @test length(a) == 100
+    @test CrystalliteAngles.generate_repulsion(100, 100, Float32) isa Crystallites{Float32}
+end

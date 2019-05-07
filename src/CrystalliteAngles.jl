@@ -1,9 +1,9 @@
 module CrystalliteAngles
-
+using LinearAlgebra
 export EulerAngles, Crystallites
 
 include("types.jl")
-
+include("repulsion.jl")
 
 """
     read_crystallites(crystallite_file, T=Float64)
