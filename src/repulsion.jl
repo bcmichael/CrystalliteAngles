@@ -56,7 +56,7 @@ function generate_repulsion(count, iterations=1000, ::Type{T}=Float64, C=1E-1) w
     weights = repulsion_weights(points)
     for i = 1:count
         Pi = points[i]
-        α = atand(Pi[1], Pi[2])
+        α = atand(Pi[1], Pi[2])+180
         β = acosd(Pi[3])
         angles[i] = EulerAngles{T}(α, β, 0)
     end
