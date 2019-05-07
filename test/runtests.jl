@@ -25,6 +25,14 @@ end
     @test length(a) == 100
     @test all(isassigned(a.angles, n) for n = 1:100)
     @test all(isassigned(a.weights, n) for n = 1:100)
+    temp_path = tempname()
+    CrystalliteAngles.write_crystallites(temp_path, a)
+    @test isfile(temp_path)
+    @test filesize(temp_path) == 2300
+    b = CrystalliteAngles.read_crystallites(temp_path)
+    rm(temp_path)
+    @test a.angles == b.angles
+    @test a.weights == b.weights
 end
 
 @testset "REPULSION" begin
