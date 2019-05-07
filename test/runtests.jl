@@ -41,7 +41,6 @@ end
     @test a isa Crystallites
     @test maximum(a.weights.-0.01)/0.01 < 0.05
     @test length(a) == 100
-    @test CrystalliteAngles.generate_repulsion(100, 100, Float32) isa Crystallites{Float32}
 end
 
 @testset "Caching" begin

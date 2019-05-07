@@ -26,3 +26,6 @@ struct Crystallites{T<:AbstractFloat}
 end
 
 length(x::Crystallites) = length(x.angles)
+
+convert(::Type{Crystallites{T}}, crystallites::Crystallites) where {T<:AbstractFloat} =
+    Crystallites(Vector{EulerAngles{T}}(crystallites.angles), Vector{T}(crystallites.weights))

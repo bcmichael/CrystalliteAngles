@@ -48,11 +48,11 @@ const cache_dir = joinpath(@__DIR__, "..", "cache")
 Read crystallites from a file in the cache. Return a `Crystallites` object or
 nothing if the file is not in the cache or is invalid.
 """
-function get_from_cache(crystallite_file, ::Type{T}=Float64) where {T<:AbstractFloat}
+function get_from_cache(crystallite_file)
     file = joinpath(cache_dir, crystallite_file)
     if isfile(file)
         try
-            return read_crystallites(file, T)
+            return read_crystallites(file)
         catch
             println("Invalid cache file $crystallite_file")
             return nothing

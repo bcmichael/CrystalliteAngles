@@ -1,6 +1,6 @@
-function random_point(::Type{T}=Float64) where {T<:AbstractFloat}
-    x = 2*(rand(T)-T(0.5))
-    y = 2*(rand(T)-T(0.5))*sqrt(1-x^2)
+function random_point()
+    x = 2*(rand()-0.5)
+    y = 2*(rand()-0.5)*sqrt(1-x^2)
     z = sqrt(1-x^2-y^2)
     if rand() > 0.5
         z = -z
@@ -8,9 +8,9 @@ function random_point(::Type{T}=Float64) where {T<:AbstractFloat}
     return [x, y, z]
 end
 
-function repulsion_updates(points::Vector{Vector{T}}) where {T<:AbstractFloat}
+function repulsion_updates(points::Vector{Vector{Float64}})
     count = length(points)
-    updates = [zeros(T, 3) for n = 1:count]
+    updates = [zeros(Float64, 3) for n = 1:count]
     for i = 1:count
         Pi = points[i]
         for j = 1:count
@@ -24,8 +24,8 @@ function repulsion_updates(points::Vector{Vector{T}}) where {T<:AbstractFloat}
     updates
 end
 
-function repulsion_weights(points::Vector{Vector{T}}) where {T<:AbstractFloat}
-    weights = zeros(T, length(points))
+function repulsion_weights(points::Vector{Vector{Float64}})
+    weights = zeros(Float64, length(points))
     for i = 1:length(points)
         Pi = points[i]
         for j = i+1:length(points)
@@ -40,9 +40,9 @@ function repulsion_weights(points::Vector{Vector{T}}) where {T<:AbstractFloat}
     weights
 end
 
-function generate_repulsion(count, iterations=1000, ::Type{T}=Float64, C=1E-1) where {T<:AbstractFloat}
+function generate_repulsion(count, iterations=1000, C=1E-1)
     C = C/count
-    points = [random_point(T) for n = 1:count]
+    points = [random_point() for n = 1:count]
     for n = 1:iterations
         updates = repulsion_updates(points)
         updates .*= C
@@ -52,13 +52,13 @@ function generate_repulsion(count, iterations=1000, ::Type{T}=Float64, C=1E-1) w
         end
     end
 
-    angles = Vector{EulerAngles{T}}(undef, count)
+    angles = Vector{EulerAngles{Float64}}(undef, count)
     weights = repulsion_weights(points)
     for i = 1:count
         Pi = points[i]
         α = atand(Pi[1], Pi[2])+180
         β = acosd(Pi[3])
-        angles[i] = EulerAngles{T}(α, β, 0)
+        angles[i] = EulerAngles{Float64}(α, β, 0)
     end
     return Crystallites(angles, weights)
 end

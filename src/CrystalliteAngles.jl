@@ -16,11 +16,11 @@ point precision by `T`. The crystallites will come from a file in the cache if a
 macthing file is available. Otherwise a new set of crystallites will be
 generated. Newly generated sets of crystallites are also added to the cache.
 """
-function get_crystallites(count, ::Type{T}=Float64) where {T<:AbstractFloat}
+function get_crystallites(count, ::Type{T}=Float64)::Crystallites{T} where {T<:AbstractFloat}
     count > 1 || throw(ArgumentError("The number of crystallites must be greater than 1"))
 
     crystallite_file = "rep$count.cry"
-    cached = get_from_cache(crystallite_file, T)
+    cached = get_from_cache(crystallite_file)
     if cached isa Crystallites && length(cached) == count
         return cached
     end
@@ -30,7 +30,7 @@ function get_crystallites(count, ::Type{T}=Float64) where {T<:AbstractFloat}
     end
 
     println("Generating crystallites")
-    crystallites = generate_repulsion(count, 1000, T)
+    crystallites = generate_repulsion(count)
     save_to_cache(crystallite_file, crystallites)
     return crystallites
 end
