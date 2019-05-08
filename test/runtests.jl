@@ -1,6 +1,22 @@
 using Test
 using CrystalliteAngles
 
+macro test_stdout(block, expected)
+    quote
+        out = stdout
+        rd, wr = redirect_stdout()
+        local output
+        try
+            $(block)
+        finally
+            redirect_stdout(out)
+            close(wr)
+            output = read(rd, String)
+        end
+        @test $expected == output
+    end
+end
+
 @testset "EulerAngles" begin
     a = rand(3).*360
     @test EulerAngles(a...) isa EulerAngles{Float64}
@@ -50,35 +66,15 @@ end
             mv(path, joinpath(CrystalliteAngles.cache_dir,"$(f)_temp.cry"), force=true)
         end
     end
-    out = stdout
-    (a,b) = redirect_stdout()
-    @test get_crystallites(2) isa Crystallites
-    redirect_stdout(out)
-    close(b)
-    @test readline(a) == "Generating crystallites"
-    @test readline(a) == ""
-
-    (a,b) = redirect_stdout()
-    @test get_crystallites(2) isa Crystallites
-    redirect_stdout(out)
-    close(b)
-    @test readline(a) == ""
+    @test_stdout (@test get_crystallites(2) isa Crystallites) "Generating crystallites\n"
+    @test_stdout (@test get_crystallites(2) isa Crystallites) ""
 
     mv(joinpath(CrystalliteAngles.cache_dir,"rep2.cry"), joinpath(CrystalliteAngles.cache_dir,"rep3.cry"))
     sleep(0.5)
-    (a,b) = redirect_stdout()
-    @test get_crystallites(3) isa Crystallites
-    redirect_stdout(out)
-    close(b)
-    @test readline(a) == "Incorrect number of crystallites in cache file rep3.cry"
-    @test readline(a) == "Generating crystallites"
-    @test readline(a) == ""
+    @test_stdout (@test get_crystallites(3) isa Crystallites) "Incorrect number of crystallites in cache file rep3.cry\nGenerating crystallites\n"
 
     @test_throws ArgumentError get_crystallites(1)
-    (a,b) = redirect_stdout()
-    @test get_crystallites(2, Float32) isa Crystallites{Float32}
-    redirect_stdout(out)
-    close(b)
+    @test_stdout (@test get_crystallites(2, Float32) isa Crystallites{Float32}) "Generating crystallites\n"
     @test get_crystallites(3, Float32) isa Crystallites{Float32}
 
     sleep(0.5)
