@@ -74,6 +74,10 @@ end
     @test_stdout (@test get_crystallites(3) isa Crystallites) "Incorrect number of crystallites in cache file rep3.cry\nGenerating crystallites\n"
 
     @test_throws ArgumentError get_crystallites(1)
+    get_crystallites(2, save_cache=false)
+    @test ! isfile(joinpath(CrystalliteAngles.cache_dir,"rep2.cry"))
+    @test_stdout (@test get_crystallites(3, read_cache=false) isa Crystallites) "Generating crystallites\n"
+
     @test_stdout (@test get_crystallites(2, Float32) isa Crystallites{Float32}) "Generating crystallites\n"
     @test get_crystallites(3, Float32) isa Crystallites{Float32}
 
