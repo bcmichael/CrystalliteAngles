@@ -5,7 +5,29 @@ export EulerAngles, Crystallites, get_crystallites
 
 include("types.jl")
 include("repulsion.jl")
+include("alderman.jl")
 include("caching.jl")
+
+function check_count(count, algorithm)
+    count > 1 || throw(ArgumentError("The number of crystallites must be greater than 1"))
+    if algorithm == :repulsion
+        # repulsion can handle any count
+    elseif algorithm == :alderman
+        check_alderman_count(count)
+    else
+        throw(ArgumentError("Algorithm not recognized: $algorithm"))
+    end
+end
+
+function generate_crystallites(count, algorithm)
+    if algorithm == :repulsion
+        crystallites = generate_repulsion(count)
+    elseif algorithm == :alderman
+        crystallites = generate_alderman(count)
+    else
+        throw(ArgumentError("Algorithm not recognized: $algorithm"))
+    end
+end
 
 """
     get_crystallites(count, T=Float64; read_cache=true, save_cache=true)
@@ -17,11 +39,12 @@ a file in the cache if a matching file is available. Otherwise a new set of
 crystallites will be generated. Newly generated sets of crystallites are added
 to the cache if `save_cache` is true.
 """
-function get_crystallites(count, ::Type{T}=Float64; read_cache::Bool=true, save_cache::Bool=true)::Crystallites{T} where {T<:AbstractFloat}
+function get_crystallites(count, ::Type{T}=Float64; read_cache::Bool=true, save_cache::Bool=true,
+    algorithm=:repulsion)::Crystallites{T} where {T<:AbstractFloat}
 
-    count > 1 || throw(ArgumentError("The number of crystallites must be greater than 1"))
+    check_count(count, algorithm)
 
-    crystallite_file = "rep$count.cry"
+    crystallite_file = "$algorithm$count.cry"
     if read_cache
         cached = get_from_cache(crystallite_file)
         if cached == nothing
@@ -33,7 +56,7 @@ function get_crystallites(count, ::Type{T}=Float64; read_cache::Bool=true, save_
     end
 
     println("Generating crystallites")
-    crystallites = generate_repulsion(count)
+    crystallites = generate_crystallites(count, algorithm)
     if save_cache
         save_to_cache(crystallite_file, crystallites)
     end

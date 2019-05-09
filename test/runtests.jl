@@ -51,16 +51,31 @@ end
     @test a.weights == b.weights
 end
 
-@testset "REPULSION" begin
+@testset "Repulsion" begin
     @test all(sum(CrystalliteAngles.random_point().^2) ≈ 1 for n = 1:10)
     a = CrystalliteAngles.generate_repulsion(100)
     @test a isa Crystallites
     @test maximum(a.weights.-0.01)/0.01 < 0.05
     @test length(a) == 100
+    @test all(isassigned(a.angles, n) for n = 1:100)
+    @test all(isassigned(a.weights, n) for n = 1:100)
+end
+
+@testset "Alderman" begin
+    @test CrystalliteAngles.generate_alderman(102) isa Crystallites
+    @test CrystalliteAngles.check_alderman_count(102) == nothing
+    @test_throws InexactError CrystalliteAngles.generate_alderman(100)
+    @test_throws ArgumentError CrystalliteAngles.check_alderman_count(100)
+    a = CrystalliteAngles.generate_alderman(102)
+    @test length(a) == 102
+    @test all(isassigned(a.angles, n) for n = 1:102)
+    @test all(isassigned(a.weights, n) for n = 1:102)
+    @test sum(a.weights) ≈ 1.0
+    @test_throws ArgumentError get_crystallites(100, algorithm=:alderman)
 end
 
 @testset "Caching" begin
-    for f in ("rep2","rep3")
+    for f in ("repulsion2","repulsion3")
         path = joinpath(CrystalliteAngles.cache_dir,"$f.cry")
         if isfile(path)
             mv(path, joinpath(CrystalliteAngles.cache_dir,"$(f)_temp.cry"), force=true)
@@ -69,20 +84,20 @@ end
     @test_stdout (@test get_crystallites(2) isa Crystallites) "Generating crystallites\n"
     @test_stdout (@test get_crystallites(2) isa Crystallites) ""
 
-    mv(joinpath(CrystalliteAngles.cache_dir,"rep2.cry"), joinpath(CrystalliteAngles.cache_dir,"rep3.cry"))
+    mv(joinpath(CrystalliteAngles.cache_dir,"repulsion2.cry"), joinpath(CrystalliteAngles.cache_dir,"repulsion3.cry"))
     sleep(0.5)
-    @test_stdout (@test get_crystallites(3) isa Crystallites) "Incorrect number of crystallites in cache file rep3.cry\nGenerating crystallites\n"
+    @test_stdout (@test get_crystallites(3) isa Crystallites) "Incorrect number of crystallites in cache file repulsion3.cry\nGenerating crystallites\n"
 
     @test_throws ArgumentError get_crystallites(1)
-    get_crystallites(2, save_cache=false)
-    @test ! isfile(joinpath(CrystalliteAngles.cache_dir,"rep2.cry"))
+    @test_stdout get_crystallites(2, save_cache=false) "Generating crystallites\n"
+    @test ! isfile(joinpath(CrystalliteAngles.cache_dir,"repulsion2.cry"))
     @test_stdout (@test get_crystallites(3, read_cache=false) isa Crystallites) "Generating crystallites\n"
 
     @test_stdout (@test get_crystallites(2, Float32) isa Crystallites{Float32}) "Generating crystallites\n"
     @test get_crystallites(3, Float32) isa Crystallites{Float32}
 
     sleep(0.5)
-    for f in ("rep2","rep3")
+    for f in ("repulsion2","repulsion3")
         path1 = joinpath(CrystalliteAngles.cache_dir,"$f.cry")
         path2 = joinpath(CrystalliteAngles.cache_dir,"$(f)_temp.cry")
         if isfile(path2)
