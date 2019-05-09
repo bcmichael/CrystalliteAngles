@@ -40,3 +40,33 @@ function generate_alderman(count)
     weights ./= sum(weights)
     return Crystallites(angles, weights)
 end
+
+function generate_sophe(count)
+    N = Int(sqrt((count-2)/4))
+    angles = Vector{EulerAngles{Float64}}(undef, count)
+    weights = fill(1/count, count)
+    n = 1
+    for i = 0:N
+        for j = 0:i
+            α = i==0 ?  0 : 90*j/i
+            β = 90*i/N
+            if i == 0
+                α_symmetry = 1
+            elseif j == 0 || j == i
+                α_symmetry = 2
+            else
+                α_symmetry = 4
+            end
+
+            β_vals = i == N ? (β,) : (β, 180-β)
+            for a = 1:α_symmetry
+                α_val = 360*(a-1)/α_symmetry+α
+                for β_val in β_vals
+                    angles[n] = EulerAngles(α_val, β_val, 0)
+                    n += 1
+                end
+            end
+        end
+    end
+    return Crystallites(angles, weights)
+end

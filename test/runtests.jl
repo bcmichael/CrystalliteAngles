@@ -74,6 +74,19 @@ end
     @test_throws ArgumentError get_crystallites(100, algorithm=:alderman)
 end
 
+@testset "SOPHE" begin
+    @test CrystalliteAngles.generate_sophe(102) isa Crystallites
+    @test CrystalliteAngles.check_alderman_count(102) == nothing
+    @test_throws InexactError CrystalliteAngles.generate_sophe(100)
+    @test_throws ArgumentError CrystalliteAngles.check_alderman_count(100)
+    a = CrystalliteAngles.generate_sophe(102)
+    @test length(a) == 102
+    @test all(isassigned(a.angles, n) for n = 1:102)
+    @test all(isassigned(a.weights, n) for n = 1:102)
+    @test sum(a.weights) ≈ 1.0
+    @test_throws ArgumentError get_crystallites(100, algorithm=:sophe)
+end
+
 @testset "Caching" begin
     for f in ("repulsion2","repulsion3")
         path = joinpath(CrystalliteAngles.cache_dir,"$f.cry")

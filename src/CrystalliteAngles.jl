@@ -14,6 +14,8 @@ function check_count(count, algorithm)
         # repulsion can handle any count
     elseif algorithm == :alderman
         check_alderman_count(count)
+    elseif algorithm == :sophe
+        check_alderman_count(count) # sophe has same constraints as alderman
     else
         throw(ArgumentError("Algorithm not recognized: $algorithm"))
     end
@@ -24,6 +26,8 @@ function generate_crystallites(count, algorithm)
         crystallites = generate_repulsion(count)
     elseif algorithm == :alderman
         crystallites = generate_alderman(count)
+    elseif algorithm == :sophe
+        crystallites = generate_sophe(count)
     else
         throw(ArgumentError("Algorithm not recognized: $algorithm"))
     end
