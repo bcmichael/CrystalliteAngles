@@ -1,7 +1,7 @@
 module CrystalliteAngles
 using LinearAlgebra
 using Printf
-export EulerAngles, Crystallites, get_crystallites
+export EulerAngles, Crystallites, get_crystallites, read_crystallites
 
 include("types.jl")
 include("repulsion.jl")
