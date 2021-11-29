@@ -96,7 +96,7 @@ end
     end
     @test_stdout (@test get_crystallites(2) isa Crystallites) "Generating crystallites\n"
     @test_stdout (@test get_crystallites(2) isa Crystallites) ""
-
+    sleep(0.5)
     mv(joinpath(CrystalliteAngles.cache_dir,"repulsion2.cry"), joinpath(CrystalliteAngles.cache_dir,"repulsion3.cry"))
     sleep(0.5)
     @test_stdout (@test get_crystallites(3) isa Crystallites) "Incorrect number of crystallites in cache file repulsion3.cry\nGenerating crystallites\n"
